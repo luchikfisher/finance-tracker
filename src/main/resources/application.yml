@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/finance_tracker
+    username: finance
+    password: finance
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: true
+
+storage:
+  raw-files:
+    path: ./data/raw
+
+google:
+  application-name: finance-tracker
+  sheets:
+    spreadsheet-id: SPREADSHEET_ID
+  credentials:
+    path: /google-service-account.json
