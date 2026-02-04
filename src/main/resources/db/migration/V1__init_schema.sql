@@ -56,7 +56,7 @@ CREATE TABLE transactions (
     value_date DATE NOT NULL,
 
     amount NUMERIC(18,2) NOT NULL,
-    currency CHAR(3) NOT NULL,
+    currency VARCHAR(3) NOT NULL,
 
     direction VARCHAR(8) NOT NULL,
     description TEXT NOT NULL,

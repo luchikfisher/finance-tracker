@@ -2,16 +2,19 @@ package com.coreline.financetracker.domain.value;
 
 import com.coreline.financetracker.common.constants.AppConstants;
 import com.coreline.financetracker.common.util.Preconditions;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Objects;
 
 @Embeddable
 public class Money {
 
+    @Column(nullable = false, precision = 18, scale = AppConstants.MONEY_SCALE)
     private BigDecimal amount;
+
+    @Column(nullable = false, length = 3)
     private String currency;
 
     protected Money() {
@@ -22,7 +25,7 @@ public class Money {
         Preconditions.notNull(amount, "amount must not be null");
         Preconditions.notNull(currency, "currency must not be null");
 
-        amount.setScale(AppConstants.MONEY_SCALE, RoundingMode.HALF_UP);
+        this.amount = amount.setScale(AppConstants.MONEY_SCALE, RoundingMode.HALF_UP);
         this.currency = currency.name();
     }
 

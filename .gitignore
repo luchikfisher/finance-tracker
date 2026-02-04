@@ -14,6 +14,9 @@ target/
 *.iml
 *.ipr
 
+# Google Service Account credentials
+src/main/resources/google-service-account.json
+
 ### Eclipse ###
 .apt_generated
 .classpath
