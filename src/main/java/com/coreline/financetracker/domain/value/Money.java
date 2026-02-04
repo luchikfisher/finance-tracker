@@ -1,5 +1,7 @@
 package com.coreline.financetracker.domain.value;
 
+import com.coreline.financetracker.common.constants.AppConstants;
+import com.coreline.financetracker.common.util.Preconditions;
 import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
@@ -17,10 +19,10 @@ public class Money {
     }
 
     public Money(BigDecimal amount, CurrencyCode currency) {
-        Objects.requireNonNull(amount, "amount must not be null");
-        Objects.requireNonNull(currency, "currency must not be null");
+        Preconditions.notNull(amount, "amount must not be null");
+        Preconditions.notNull(currency, "currency must not be null");
 
-        this.amount = amount.setScale(2, RoundingMode.HALF_UP);
+        amount.setScale(AppConstants.MONEY_SCALE, RoundingMode.HALF_UP);
         this.currency = currency.name();
     }
 

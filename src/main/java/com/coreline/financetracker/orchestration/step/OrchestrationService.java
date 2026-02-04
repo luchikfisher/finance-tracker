@@ -1,5 +1,6 @@
 package com.coreline.financetracker.orchestration.step;
 
+import com.coreline.financetracker.common.time.ClockProvider;
 import com.coreline.financetracker.orchestration.model.*;
 import com.coreline.financetracker.orchestration.service.PipelineStep;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import java.util.List;
 public class OrchestrationService {
 
     private final List<PipelineStep> steps;
+    ClockProvider clockProvider;
 
     public OrchestrationService(List<PipelineStep> steps) {
         this.steps = steps;
@@ -23,14 +25,14 @@ public class OrchestrationService {
             }
             return new PipelineResult(
                     PipelineStatus.SUCCESS,
-                    Instant.now(),
+                    clockProvider.now(),
                     "Pipeline completed successfully"
             );
 
         } catch (Exception e) {
             return new PipelineResult(
                     PipelineStatus.FAILED,
-                    Instant.now(),
+                    clockProvider.now(),
                     "Pipeline failed: " + e.getMessage()
             );
         }
