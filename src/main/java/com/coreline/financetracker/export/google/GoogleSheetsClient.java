@@ -1,5 +1,6 @@
 package com.coreline.financetracker.export.google;
 
+import com.coreline.financetracker.common.exception.ExternalIntegrationException;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,10 @@ public class GoogleSheetsClient {
                     .execute();
 
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to write to Google Sheets", e);
+            throw new ExternalIntegrationException(
+                    "Failed to write to Google Sheets",
+                    e
+            );
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.coreline.financetracker.parsing.impl;
 
+import com.coreline.financetracker.common.constants.AppConstants;
 import com.coreline.financetracker.parsing.api.BankFileParser;
 import com.coreline.financetracker.parsing.model.*;
 
@@ -18,7 +19,7 @@ public class DummyCsvBankParser implements BankFileParser {
 
     @Override
     public String supportedBank() {
-        return "DUMMY_BANK";
+        return AppConstants.DEFAULT_BANK;
     }
 
     @Override
@@ -41,7 +42,7 @@ public class DummyCsvBankParser implements BankFileParser {
                 String[] parts = line.split(",");
 
                 ParsedTransaction tx = new ParsedTransaction(
-                        new ParsedAccountRef("DUMMY_BANK", parts[7]),
+                        new ParsedAccountRef(AppConstants.DEFAULT_BANK, parts[7]),
                         LocalDate.parse(parts[0]),
                         LocalDate.parse(parts[1]),
                         new BigDecimal(parts[2]),

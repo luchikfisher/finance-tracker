@@ -1,5 +1,7 @@
 package com.coreline.financetracker.importraw.service;
 
+import com.coreline.financetracker.common.constants.AppConstants;
+import com.coreline.financetracker.common.exception.FinanceTrackerException;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -10,7 +12,7 @@ public class ChecksumService {
 
     public String sha256(InputStream inputStream) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            MessageDigest digest = MessageDigest.getInstance(AppConstants.CHECKSUM_ALGORITHM);
             byte[] buffer = new byte[8_192];
             int bytesRead;
 
@@ -22,7 +24,7 @@ public class ChecksumService {
             return toHex(hash);
 
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to calculate checksum", e);
+            throw new FinanceTrackerException("Failed to calculate checksum", e) {};
         }
     }
 

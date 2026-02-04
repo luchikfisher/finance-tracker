@@ -1,5 +1,6 @@
 package com.coreline.financetracker.enrichment.service;
 
+import com.coreline.financetracker.common.time.ClockProvider;
 import com.coreline.financetracker.domain.model.Transaction;
 import com.coreline.financetracker.enrichment.model.*;
 import com.coreline.financetracker.enrichment.rule.EnrichmentRule;
@@ -15,6 +16,7 @@ public class EnrichmentService {
 
     private final List<EnrichmentRule> rules;
     private final EnrichmentStore store;
+    ClockProvider clockProvider;
 
     public EnrichmentService(
             List<EnrichmentRule> rules,
@@ -33,7 +35,8 @@ public class EnrichmentService {
                         category.get(),
                         EnrichmentSource.RULE,
                         rule.explanation(),
-                        Instant.now()
+                        clockProvider.now()
+
                 );
                 store.save(result);
                 return Optional.of(result);

@@ -1,5 +1,6 @@
 package com.coreline.financetracker.orchestration.service;
 
+import com.coreline.financetracker.common.constants.AppConstants;
 import com.coreline.financetracker.parsing.service.ParsingService;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ public class ParsingStep implements PipelineStep {
         InputStream inputStream = InputStream.nullInputStream();
 
         parsingService.parse(
-                "DUMMY_BANK",
+                AppConstants.DEFAULT_BANK,
                 inputStream
         );
     }

@@ -1,5 +1,7 @@
 package com.coreline.financetracker.importraw.service;
 
+import com.coreline.financetracker.common.exception.ValidationException;
+import com.coreline.financetracker.common.time.ClockProvider;
 import com.coreline.financetracker.importraw.model.*;
 import com.coreline.financetracker.importraw.repository.*;
 import com.coreline.financetracker.importraw.storage.RawFileStorage;
@@ -17,6 +19,7 @@ public class RawImportService {
     private final ImportedFileRepository importedFileRepository;
     private final ChecksumService checksumService;
     private final RawFileStorage rawFileStorage;
+    ClockProvider clockProvider;
 
     public RawImportService(
             ImportSessionRepository importSessionRepository,
@@ -39,7 +42,7 @@ public class RawImportService {
         UUID sessionId = UUID.randomUUID();
         ImportSession session = new ImportSession(
                 sessionId,
-                Instant.now(),
+                clockProvider.now(),
                 ImportStatus.CREATED
         );
         importSessionRepository.save(session);
@@ -48,7 +51,7 @@ public class RawImportService {
 
         importedFileRepository.findByChecksum(checksum)
                 .ifPresent(existing -> {
-                    throw new IllegalStateException(
+                    throw new ValidationException(
                             "File with same checksum already imported: " + existing.getId()
                     );
                 });
@@ -62,7 +65,7 @@ public class RawImportService {
                 originalFilename,
                 bankName,
                 checksum,
-                Instant.now()
+                clockProvider.now()
         );
 
         importedFileRepository.save(importedFile);

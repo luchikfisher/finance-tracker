@@ -1,5 +1,6 @@
 package com.coreline.financetracker.orchestration.service;
 
+import com.coreline.financetracker.common.constants.AppConstants;
 import com.coreline.financetracker.importraw.service.RawImportService;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,7 @@ public class RawImportStep implements PipelineStep {
         InputStream inputStream = InputStream.nullInputStream();
 
         rawImportService.importFile(
-                "DUMMY_BANK",
+                AppConstants.DEFAULT_BANK,
                 "import.csv",
                 inputStream
         );
