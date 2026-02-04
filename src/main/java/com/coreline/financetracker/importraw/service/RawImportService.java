@@ -5,6 +5,7 @@ import com.coreline.financetracker.common.time.ClockProvider;
 import com.coreline.financetracker.importraw.model.*;
 import com.coreline.financetracker.importraw.repository.*;
 import com.coreline.financetracker.importraw.storage.RawFileStorage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,25 +14,14 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class RawImportService {
 
     private final ImportSessionRepository importSessionRepository;
     private final ImportedFileRepository importedFileRepository;
     private final ChecksumService checksumService;
     private final RawFileStorage rawFileStorage;
-    ClockProvider clockProvider;
-
-    public RawImportService(
-            ImportSessionRepository importSessionRepository,
-            ImportedFileRepository importedFileRepository,
-            ChecksumService checksumService,
-            RawFileStorage rawFileStorage
-    ) {
-        this.importSessionRepository = importSessionRepository;
-        this.importedFileRepository = importedFileRepository;
-        this.checksumService = checksumService;
-        this.rawFileStorage = rawFileStorage;
-    }
+    private final ClockProvider clockProvider;
 
     @Transactional
     public ImportedFile importFile(

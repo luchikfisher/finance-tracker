@@ -20,6 +20,6 @@ storage:
 google:
   application-name: finance-tracker
   sheets:
-    spreadsheet-id: SPREADSHEET_ID
+    spreadsheet-id: 1G_uvNzT8wtWGJZ3TiRSSnfHg_MspkG6bPA3AP5vjNFw
   credentials:
     path: /google-service-account.json

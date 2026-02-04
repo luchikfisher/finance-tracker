@@ -3,20 +3,18 @@ package com.coreline.financetracker.orchestration.step;
 import com.coreline.financetracker.common.time.ClockProvider;
 import com.coreline.financetracker.orchestration.model.*;
 import com.coreline.financetracker.orchestration.service.PipelineStep;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OrchestrationService {
 
     private final List<PipelineStep> steps;
-    ClockProvider clockProvider;
-
-    public OrchestrationService(List<PipelineStep> steps) {
-        this.steps = steps;
-    }
+    private final ClockProvider clockProvider;
 
     public PipelineResult runPipeline() {
         try {
