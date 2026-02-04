@@ -23,4 +23,9 @@ public final class AppConstants {
     // GOOGLE SHEETS
     // =====================
     public static final String GOOGLE_SHEETS_VALUE_INPUT_OPTION = "RAW";
+
+
+    public static final String GOOGLE_SHEETS_SCOPE =
+            "https://www.googleapis.com/auth/spreadsheets";
+
 }
