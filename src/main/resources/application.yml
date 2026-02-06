@@ -1,9 +1,6 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:finance_tracker;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+  profiles:
+    default: postgres
   jpa:
     hibernate:
       ddl-auto: validate
@@ -11,7 +8,6 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.H2Dialect
   flyway:
     enabled: true
 
@@ -28,6 +24,10 @@ export:
 
 pipeline:
   sample-file: sample-import.csv
+  auto-run: false
+
+api:
+  key: ${API_KEY:}
 
 google:
   application-name: finance-tracker
