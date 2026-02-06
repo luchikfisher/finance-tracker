@@ -17,6 +17,10 @@ target/
 # Google Service Account credentials
 src/main/resources/google-service-account.json
 
+# Runtime / local data
+/data/
+/data/**
+
 ### Eclipse ###
 .apt_generated
 .classpath

@@ -1,10 +1,7 @@
 -- ============================
--- FINANCE TRACKER
+-- FINANCE TRACKER (H2)
 -- Initial Database Schema
 -- ============================
-
--- Enable UUID support
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================
 -- IMPORT RAW LAYER
@@ -85,16 +82,6 @@ CREATE TABLE transaction_enrichments (
         FOREIGN KEY (transaction_id)
         REFERENCES transactions (id)
 );
-
--- ============================
--- (FUTURE) DEDUPLICATION TRACE
--- ============================
-
--- Optional: store fingerprints later if desired
--- CREATE TABLE transaction_fingerprints (
---     transaction_id UUID PRIMARY KEY,
---     fingerprint VARCHAR(64) NOT NULL UNIQUE
--- );
 
 -- ============================
 -- END OF SCHEMA
