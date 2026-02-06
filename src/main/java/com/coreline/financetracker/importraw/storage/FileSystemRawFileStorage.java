@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -28,6 +29,19 @@ public class FileSystemRawFileStorage implements RawFileStorage {
 
         } catch (Exception e) {
             throw new IllegalStateException("Failed to store raw file", e);
+        }
+    }
+
+    @Override
+    public InputStream load(UUID fileId) {
+        try {
+            Path target = rootDirectory.resolve(fileId.toString());
+            if (!Files.exists(target)) {
+                throw new NoSuchFileException(target.toString());
+            }
+            return Files.newInputStream(target);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load raw file", e);
         }
     }
 }

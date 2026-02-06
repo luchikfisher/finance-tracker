@@ -9,6 +9,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,6 +25,7 @@ public class GoogleConfig {
             List.of(AppConstants.GOOGLE_SHEETS_SCOPE);
 
     @Bean
+    @ConditionalOnProperty(name = "export.google.enabled", havingValue = "true")
     public Sheets googleSheets(
             @Value("${google.application-name}") String applicationName
     ) {

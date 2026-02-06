@@ -6,4 +6,6 @@ import java.util.UUID;
 public interface RawFileStorage {
 
     void store(UUID fileId, InputStream inputStream);
+
+    InputStream load(UUID fileId);
 }

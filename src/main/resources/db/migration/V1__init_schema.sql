@@ -3,9 +3,6 @@
 -- Initial Database Schema
 -- ============================
 
--- Enable UUID support
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- ============================
 -- IMPORT RAW LAYER
 -- ============================

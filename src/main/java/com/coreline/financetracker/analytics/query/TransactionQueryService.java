@@ -21,6 +21,10 @@ public class TransactionQueryService {
         return transactionRepository.findByAccountId(accountId);
     }
 
+    public List<Transaction> findAll() {
+        return transactionRepository.findAll();
+    }
+
     public List<Transaction> findByAccountAndDateRange(
             UUID accountId,
             LocalDate from,
