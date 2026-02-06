@@ -5,13 +5,14 @@ import com.coreline.financetracker.analytics.query.TransactionQueryService;
 import com.coreline.financetracker.analytics.service.*;
 import com.coreline.financetracker.domain.model.Transaction;
 import com.coreline.financetracker.export.api.Exporter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Component
+@ConditionalOnProperty(name = "export.google.enabled", havingValue = "true")
 public class GoogleSheetsExporter implements Exporter {
 
     private final GoogleSheetsClient client;
@@ -19,10 +20,6 @@ public class GoogleSheetsExporter implements Exporter {
     private final CashFlowCalculator cashFlowCalculator;
     private final MonthlySummaryCalculator monthlySummaryCalculator;
     private final CategoryAnalyticsService categoryAnalyticsService;
-
-    // For now: exporting a single account (can be expanded later)
-    private final UUID accountId =
-            UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     public GoogleSheetsExporter(
             GoogleSheetsClient client,
@@ -41,7 +38,7 @@ public class GoogleSheetsExporter implements Exporter {
     @Override
     public void export() {
         List<Transaction> transactions =
-                transactionQueryService.findByAccount(accountId);
+                transactionQueryService.findAll();
 
         exportTransactions(transactions);
         exportMonthlySummary(transactions);

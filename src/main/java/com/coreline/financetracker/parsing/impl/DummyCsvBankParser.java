@@ -32,24 +32,37 @@ public class DummyCsvBankParser implements BankFileParser {
             // date,valueDate,amount,currency,direction,description,counterparty,accountId
             String line;
             boolean firstLine = true;
+            int lineNumber = 0;
 
             while ((line = reader.readLine()) != null) {
+                lineNumber++;
                 if (firstLine) {
                     firstLine = false;
                     continue;
                 }
+                if (line.isBlank()) {
+                    continue;
+                }
 
-                String[] parts = line.split(",");
+                String[] parts = line.split(",", -1);
+                if (parts.length < 8) {
+                    throw new IllegalArgumentException(
+                            "Invalid CSV line " + lineNumber + ": expected 8 columns, got " + parts.length
+                    );
+                }
 
                 ParsedTransaction tx = new ParsedTransaction(
-                        new ParsedAccountRef(AppConstants.DEFAULT_BANK, parts[7]),
-                        LocalDate.parse(parts[0]),
-                        LocalDate.parse(parts[1]),
-                        new BigDecimal(parts[2]),
-                        parts[3],
-                        ParsedDirection.valueOf(parts[4]),
-                        parts[5],
-                        parts[6]
+                        new ParsedAccountRef(
+                                AppConstants.DEFAULT_BANK,
+                                parts[7].trim()
+                        ),
+                        LocalDate.parse(parts[0].trim()),
+                        parseValueDate(parts[1], parts[0]),
+                        new BigDecimal(parts[2].trim()),
+                        parts[3].trim(),
+                        ParsedDirection.valueOf(parts[4].trim().toUpperCase()),
+                        parts[5].trim(),
+                        parts[6].trim()
                 );
 
                 result.add(tx);
@@ -60,5 +73,13 @@ public class DummyCsvBankParser implements BankFileParser {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to parse CSV file", e);
         }
+    }
+
+    private LocalDate parseValueDate(String valueDate, String transactionDate) {
+        String trimmed = valueDate == null ? "" : valueDate.trim();
+        if (trimmed.isEmpty()) {
+            return LocalDate.parse(transactionDate.trim());
+        }
+        return LocalDate.parse(trimmed);
     }
 }

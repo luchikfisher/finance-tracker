@@ -1,28 +1,31 @@
 package com.coreline.financetracker.orchestration.service;
 
-import com.coreline.financetracker.deduplication.service.DeduplicationService;
-import com.coreline.financetracker.parsing.model.ParsedTransaction;
+import com.coreline.financetracker.domain.service.TransactionIngestionService;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import java.util.List;
 
 @Component
+@Order(3)
 public class DeduplicationStep implements PipelineStep {
 
-    private final DeduplicationService deduplicationService;
+    private final TransactionIngestionService transactionIngestionService;
 
-    public DeduplicationStep(DeduplicationService deduplicationService) {
-        this.deduplicationService = deduplicationService;
+    public DeduplicationStep(TransactionIngestionService transactionIngestionService) {
+        this.transactionIngestionService = transactionIngestionService;
     }
 
     @Override
-    public void execute() {
-        // Placeholder – real parsed transactions will be passed later
-        ParsedTransaction parsedTransaction = null;
+    public void execute(PipelineContext context) {
+        if (context.getParsedTransactions() == null ||
+                context.getParsedTransactions().isEmpty()) {
+            context.setTransactions(List.of());
+            return;
+        }
 
-        deduplicationService.checkDuplicate(
-                parsedTransaction,
-                UUID.randomUUID()
+        context.setTransactions(
+                transactionIngestionService.ingest(context.getParsedTransactions())
         );
     }
 }

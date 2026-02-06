@@ -5,6 +5,7 @@ import com.coreline.financetracker.deduplication.policy.DefaultDeduplicationPoli
 import com.coreline.financetracker.domain.model.Transaction;
 import com.coreline.financetracker.domain.repository.TransactionRepository;
 import com.coreline.financetracker.parsing.model.ParsedTransaction;
+import com.coreline.financetracker.common.util.Preconditions;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,14 +30,20 @@ public class DeduplicationService {
             ParsedTransaction parsedTransaction,
             UUID accountId
     ) {
+        Preconditions.notNull(parsedTransaction, "parsedTransaction must not be null");
+        Preconditions.notNull(accountId, "accountId must not be null");
+
         TransactionFingerprint fingerprint =
-                fingerprintService.fingerprint(parsedTransaction);
+                fingerprintService.fingerprint(parsedTransaction, accountId);
 
         List<Transaction> existing =
                 transactionRepository.findByAccountId(accountId);
 
         for (Transaction tx : existing) {
-            if (policy.isDuplicate(fingerprint, tx)) {
+            TransactionFingerprint existingFingerprint =
+                    fingerprintService.fingerprint(tx);
+
+            if (policy.isDuplicate(fingerprint, existingFingerprint)) {
                 return new DeduplicationResult(tx.getId(), true);
             }
         }

@@ -61,6 +61,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- H2 (local/dev) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Flyway -->
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -122,12 +129,6 @@
             <artifactId>google-api-services-sheets</artifactId>
             <version>v4-rev20230815-2.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
 
     </dependencies>
 
