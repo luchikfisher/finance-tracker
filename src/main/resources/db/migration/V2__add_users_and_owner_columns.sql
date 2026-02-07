@@ -36,12 +36,6 @@ ALTER TABLE imported_files
         FOREIGN KEY (user_id)
         REFERENCES users (id);
 
-ALTER TABLE imported_files
-    DROP CONSTRAINT IF EXISTS uq_imported_files_checksum;
-
-ALTER TABLE imported_files
-    ADD CONSTRAINT uq_imported_files_user_checksum
-        UNIQUE (user_id, checksum);
 
 ALTER TABLE accounts
     ADD CONSTRAINT fk_accounts_user

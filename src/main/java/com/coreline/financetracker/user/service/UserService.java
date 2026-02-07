@@ -53,6 +53,31 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public AppUser createAdmin(String username, String rawPassword) {
+        if (username == null || username.isBlank()) {
+            throw new ValidationException("username is required");
+        }
+        if (rawPassword == null || rawPassword.isBlank()) {
+            throw new ValidationException("password is required");
+        }
+
+        userRepository.findByUsername(username)
+                .ifPresent(existing -> {
+                    throw new ValidationException("username already exists");
+                });
+
+        String hash = passwordEncoder.encode(rawPassword);
+        AppUser user = new AppUser(
+                UUID.randomUUID(),
+                username.trim(),
+                hash,
+                UserRole.SYSTEM_ADMIN,
+                clockProvider.now(),
+                clockProvider.now()
+        );
+        return userRepository.save(user);
+    }
+
     public AppUser requireById(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("User not found"));

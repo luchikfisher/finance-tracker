@@ -27,10 +27,14 @@ pipeline:
   auto-run: false
   system-user-id:
 
-admin:
-  bootstrap:
-    username: ${ADMIN_BOOTSTRAP_USERNAME:}
-    password: ${ADMIN_BOOTSTRAP_PASSWORD:}
+security:
+  jwt:
+    secret: ${JWT_SECRET:dev-secret-change-me-please-32chars}
+    access-ttl-minutes: 30
+    refresh-ttl-days: 30
+  reset:
+    ttl-minutes: 30
+    return-token: true
 
 google:
   application-name: finance-tracker

@@ -76,4 +76,9 @@ public class AppUser {
         this.role = role;
         this.updatedAt = now;
     }
+
+    public void updatePasswordHash(String passwordHash, Instant now) {
+        this.passwordHash = passwordHash;
+        this.updatedAt = now;
+    }
 }
