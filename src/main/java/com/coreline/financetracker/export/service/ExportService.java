@@ -14,7 +14,7 @@ public class ExportService {
         this.exporters = exporters;
     }
 
-    public void exportAll() {
-        exporters.forEach(Exporter::export);
+    public void exportAll(java.util.UUID userId) {
+        exporters.forEach(exporter -> exporter.export(userId));
     }
 }

@@ -5,7 +5,9 @@ import com.coreline.financetracker.common.exception.ValidationException;
 import com.coreline.financetracker.domain.model.Transaction;
 import com.coreline.financetracker.domain.repository.TransactionRepository;
 import com.coreline.financetracker.analytics.query.TransactionQueryService;
+import com.coreline.financetracker.user.service.CurrentUserService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -18,16 +20,20 @@ public class TransactionController {
 
     private final TransactionRepository transactionRepository;
     private final TransactionQueryService transactionQueryService;
+    private final CurrentUserService currentUserService;
 
     public TransactionController(
             TransactionRepository transactionRepository,
-            TransactionQueryService transactionQueryService
+            TransactionQueryService transactionQueryService,
+            CurrentUserService currentUserService
     ) {
         this.transactionRepository = transactionRepository;
         this.transactionQueryService = transactionQueryService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping
+    @PreAuthorize("@access.canRead(authentication)")
     public List<TransactionDto> listTransactions(
             @RequestParam(value = "accountId", required = false) UUID accountId,
             @RequestParam(value = "from", required = false)
@@ -36,13 +42,14 @@ public class TransactionController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
     ) {
         List<Transaction> transactions;
+        UUID userId = currentUserService.requireUserId();
 
         if (accountId != null && from != null && to != null) {
-            transactions = transactionQueryService.findByAccountAndDateRange(accountId, from, to);
+            transactions = transactionQueryService.findByAccountAndDateRange(userId, accountId, from, to);
         } else if (accountId != null) {
-            transactions = transactionQueryService.findByAccount(accountId);
+            transactions = transactionQueryService.findByAccount(userId, accountId);
         } else {
-            transactions = transactionQueryService.findAll();
+            transactions = transactionQueryService.findAll(userId);
         }
 
         if (from != null || to != null) {
@@ -62,8 +69,10 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@access.canRead(authentication)")
     public TransactionDto getTransaction(@PathVariable("id") UUID id) {
         return transactionRepository.findById(id)
+                .filter(tx -> currentUserService.requireUserId().equals(tx.getUserId()))
                 .map(TransactionDto::from)
                 .orElseThrow(() -> new ValidationException("Transaction not found"));
     }

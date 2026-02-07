@@ -25,7 +25,7 @@ public class DeduplicationStep implements PipelineStep {
         }
 
         context.setTransactions(
-                transactionIngestionService.ingest(context.getParsedTransactions())
+                transactionIngestionService.ingest(context.getUserId(), context.getParsedTransactions())
         );
     }
 }

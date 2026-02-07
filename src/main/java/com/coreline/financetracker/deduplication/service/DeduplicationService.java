@@ -28,16 +28,18 @@ public class DeduplicationService {
 
     public DeduplicationResult checkDuplicate(
             ParsedTransaction parsedTransaction,
-            UUID accountId
+            UUID accountId,
+            UUID userId
     ) {
         Preconditions.notNull(parsedTransaction, "parsedTransaction must not be null");
         Preconditions.notNull(accountId, "accountId must not be null");
+        Preconditions.notNull(userId, "userId must not be null");
 
         TransactionFingerprint fingerprint =
                 fingerprintService.fingerprint(parsedTransaction, accountId);
 
         List<Transaction> existing =
-                transactionRepository.findByAccountId(accountId);
+                transactionRepository.findByUserIdAndAccountId(userId, accountId);
 
         for (Transaction tx : existing) {
             TransactionFingerprint existingFingerprint =

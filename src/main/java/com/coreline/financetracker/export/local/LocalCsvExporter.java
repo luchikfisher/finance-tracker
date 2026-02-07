@@ -43,11 +43,11 @@ public class LocalCsvExporter implements Exporter {
     }
 
     @Override
-    public void export() {
+    public void export(java.util.UUID userId) {
         try {
             Files.createDirectories(exportRoot);
 
-            List<Transaction> transactions = transactionQueryService.findAll();
+            List<Transaction> transactions = transactionQueryService.findAll(userId);
 
             writeTransactions(transactions);
             writeMonthlySummary(transactions);

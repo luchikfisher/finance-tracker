@@ -11,6 +11,9 @@ public class ImportSession {
     @Id
     private UUID id;
 
+    @Column
+    private UUID userId;
+
     @Column(nullable = false)
     private Instant startedAt;
 
@@ -22,14 +25,19 @@ public class ImportSession {
         // JPA
     }
 
-    public ImportSession(UUID id, Instant startedAt, ImportStatus status) {
+    public ImportSession(UUID id, UUID userId, Instant startedAt, ImportStatus status) {
         this.id = id;
+        this.userId = userId;
         this.startedAt = startedAt;
         this.status = status;
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
     public Instant getStartedAt() {

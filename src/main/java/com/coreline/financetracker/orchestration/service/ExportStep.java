@@ -16,6 +16,6 @@ public class ExportStep implements PipelineStep {
 
     @Override
     public void execute(PipelineContext context) {
-        exportService.exportAll();
+        exportService.exportAll(context.getUserId());
     }
 }

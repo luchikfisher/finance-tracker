@@ -9,7 +9,9 @@ import com.coreline.financetracker.analytics.service.CategoryAnalyticsService;
 import com.coreline.financetracker.analytics.service.MonthlySummaryCalculator;
 import com.coreline.financetracker.analytics.query.TransactionQueryService;
 import com.coreline.financetracker.domain.model.Transaction;
+import com.coreline.financetracker.user.service.CurrentUserService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,20 +29,24 @@ public class AnalyticsController {
     private final CashFlowCalculator cashFlowCalculator;
     private final MonthlySummaryCalculator monthlySummaryCalculator;
     private final CategoryAnalyticsService categoryAnalyticsService;
+    private final CurrentUserService currentUserService;
 
     public AnalyticsController(
             TransactionQueryService transactionQueryService,
             CashFlowCalculator cashFlowCalculator,
             MonthlySummaryCalculator monthlySummaryCalculator,
-            CategoryAnalyticsService categoryAnalyticsService
+            CategoryAnalyticsService categoryAnalyticsService,
+            CurrentUserService currentUserService
     ) {
         this.transactionQueryService = transactionQueryService;
         this.cashFlowCalculator = cashFlowCalculator;
         this.monthlySummaryCalculator = monthlySummaryCalculator;
         this.categoryAnalyticsService = categoryAnalyticsService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping("/cashflow")
+    @PreAuthorize("@access.canRead(authentication)")
     public CashFlowSnapshotDto cashFlow(
             @RequestParam(value = "accountId", required = false) UUID accountId,
             @RequestParam(value = "from", required = false)
@@ -54,6 +60,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/monthly-summary")
+    @PreAuthorize("@access.canRead(authentication)")
     public List<MonthlySummaryDto> monthlySummary(
             @RequestParam(value = "accountId", required = false) UUID accountId,
             @RequestParam(value = "from", required = false)
@@ -68,6 +75,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/category-breakdown")
+    @PreAuthorize("@access.canRead(authentication)")
     public List<CategoryBreakdownDto> categoryBreakdown(
             @RequestParam(value = "accountId", required = false) UUID accountId,
             @RequestParam(value = "from", required = false)
@@ -86,14 +94,15 @@ public class AnalyticsController {
             LocalDate from,
             LocalDate to
     ) {
+        UUID userId = currentUserService.requireUserId();
         List<Transaction> transactions;
 
         if (accountId != null && from != null && to != null) {
-            transactions = transactionQueryService.findByAccountAndDateRange(accountId, from, to);
+            transactions = transactionQueryService.findByAccountAndDateRange(userId, accountId, from, to);
         } else if (accountId != null) {
-            transactions = transactionQueryService.findByAccount(accountId);
+            transactions = transactionQueryService.findByAccount(userId, accountId);
         } else {
-            transactions = transactionQueryService.findAll();
+            transactions = transactionQueryService.findAll(userId);
         }
 
         if (from != null || to != null) {

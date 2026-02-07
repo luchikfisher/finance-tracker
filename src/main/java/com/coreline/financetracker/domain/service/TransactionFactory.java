@@ -15,6 +15,7 @@ public class TransactionFactory {
 
     public Transaction create(
             UUID accountId,
+            UUID userId,
             LocalDate transactionDate,
             LocalDate valueDate,
             BigDecimal amount,
@@ -28,6 +29,7 @@ public class TransactionFactory {
         return new Transaction(
                 UUID.randomUUID(),
                 accountId,
+                userId,
                 transactionDate,
                 valueDate,
                 money,

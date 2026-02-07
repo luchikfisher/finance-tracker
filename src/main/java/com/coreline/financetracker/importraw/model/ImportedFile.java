@@ -6,7 +6,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "imported_files", uniqueConstraints = {
-                @UniqueConstraint(name = "uq_imported_files_checksum", columnNames = "checksum")
+                @UniqueConstraint(
+                        name = "uq_imported_files_user_checksum",
+                        columnNames = {"user_id", "checksum"}
+                )
         }
 )
 public class ImportedFile {
@@ -16,6 +19,9 @@ public class ImportedFile {
 
     @Column(nullable = false)
     private UUID importSessionId;
+
+    @Column
+    private UUID userId;
 
     @Column(nullable = false)
     private String originalFilename;
@@ -36,6 +42,7 @@ public class ImportedFile {
     public ImportedFile(
             UUID id,
             UUID importSessionId,
+            UUID userId,
             String originalFilename,
             String bankName,
             String checksum,
@@ -43,6 +50,7 @@ public class ImportedFile {
     ) {
         this.id = id;
         this.importSessionId = importSessionId;
+        this.userId = userId;
         this.originalFilename = originalFilename;
         this.bankName = bankName;
         this.checksum = checksum;
@@ -55,6 +63,10 @@ public class ImportedFile {
 
     public UUID getImportSessionId() {
         return importSessionId;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
     public String getOriginalFilename() {

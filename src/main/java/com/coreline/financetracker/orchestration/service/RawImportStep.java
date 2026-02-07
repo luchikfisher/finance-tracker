@@ -16,17 +16,25 @@ public class RawImportStep implements PipelineStep {
 
     private final RawImportService rawImportService;
     private final String sampleFile;
+    private final String systemUserId;
 
     public RawImportStep(
             RawImportService rawImportService,
-            @Value("${pipeline.sample-file:sample-import.csv}") String sampleFile
+            @Value("${pipeline.sample-file:sample-import.csv}") String sampleFile,
+            @Value("${pipeline.system-user-id:}") String systemUserId
     ) {
         this.rawImportService = rawImportService;
         this.sampleFile = sampleFile;
+        this.systemUserId = systemUserId == null ? "" : systemUserId.trim();
     }
 
     @Override
     public void execute(PipelineContext context) {
+        if (systemUserId.isBlank()) {
+            throw new IllegalStateException("pipeline.system-user-id is required for pipeline execution");
+        }
+        context.setUserId(java.util.UUID.fromString(systemUserId));
+
         try {
             ClassPathResource resource = new ClassPathResource(sampleFile);
             if (!resource.exists()) {
@@ -44,6 +52,7 @@ public class RawImportStep implements PipelineStep {
             context.setOriginalFilename(sampleFile);
             context.setImportedFile(
                     rawImportService.importFile(
+                            context.getUserId(),
                             AppConstants.DEFAULT_BANK,
                             sampleFile,
                             data

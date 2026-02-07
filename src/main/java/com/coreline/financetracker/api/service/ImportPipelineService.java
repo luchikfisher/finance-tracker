@@ -43,23 +43,25 @@ public class ImportPipelineService {
     }
 
     public ImportSummaryDto importAndProcess(
+            UUID userId,
             String bankName,
             String originalFilename,
             byte[] data,
             boolean export
     ) {
+        Preconditions.notNull(userId, "userId is required");
         Preconditions.notBlank(bankName, "bankName is required");
         Preconditions.notBlank(originalFilename, "originalFilename is required");
         Preconditions.notNull(data, "file data is required");
 
         ImportedFile importedFile =
-                rawImportService.importFile(bankName, originalFilename, data);
+                rawImportService.importFile(userId, bankName, originalFilename, data);
 
         List<ParsedTransaction> parsed =
                 parsingService.parse(bankName, new ByteArrayInputStream(data));
 
         List<Transaction> saved =
-                transactionIngestionService.ingest(parsed);
+                transactionIngestionService.ingest(userId, parsed);
 
         List<EnrichmentResult> enrichments = new ArrayList<>();
         for (Transaction transaction : saved) {
@@ -67,7 +69,7 @@ public class ImportPipelineService {
         }
 
         if (export) {
-            exportService.exportAll();
+            exportService.exportAll(userId);
         }
 
         List<UUID> transactionIds = saved.stream()
