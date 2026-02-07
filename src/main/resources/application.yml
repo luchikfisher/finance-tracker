@@ -25,9 +25,12 @@ export:
 pipeline:
   sample-file: sample-import.csv
   auto-run: false
+  system-user-id:
 
-api:
-  key: ${API_KEY:}
+admin:
+  bootstrap:
+    username: ${ADMIN_BOOTSTRAP_USERNAME:}
+    password: ${ADMIN_BOOTSTRAP_PASSWORD:}
 
 google:
   application-name: finance-tracker

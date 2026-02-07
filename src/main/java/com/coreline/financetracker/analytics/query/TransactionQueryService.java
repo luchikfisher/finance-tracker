@@ -17,20 +17,21 @@ public class TransactionQueryService {
         this.transactionRepository = transactionRepository;
     }
 
-    public List<Transaction> findByAccount(UUID accountId) {
-        return transactionRepository.findByAccountId(accountId);
+    public List<Transaction> findByAccount(UUID userId, UUID accountId) {
+        return transactionRepository.findByUserIdAndAccountId(userId, accountId);
     }
 
-    public List<Transaction> findAll() {
-        return transactionRepository.findAll();
+    public List<Transaction> findAll(UUID userId) {
+        return transactionRepository.findByUserId(userId);
     }
 
     public List<Transaction> findByAccountAndDateRange(
+            UUID userId,
             UUID accountId,
             LocalDate from,
             LocalDate to
     ) {
-        return transactionRepository.findByAccountId(accountId).stream()
+        return transactionRepository.findByUserIdAndAccountId(userId, accountId).stream()
                 .filter(tx ->
                         !tx.getTransactionDate().isBefore(from) &&
                                 !tx.getTransactionDate().isAfter(to)

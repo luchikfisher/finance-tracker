@@ -9,8 +9,8 @@ import java.util.UUID;
         name = "accounts",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uq_accounts_bank_external",
-                        columnNames = {"bank_name", "external_account_id"}
+                        name = "uq_accounts_user_bank_external",
+                        columnNames = {"user_id", "bank_name", "external_account_id"}
                 )
         }
 )
@@ -18,6 +18,9 @@ public class Account {
 
     @Id
     private UUID id;
+
+    @Column
+    private UUID userId;
 
     @Column(nullable = false)
     private String bankName;
@@ -29,14 +32,19 @@ public class Account {
         // JPA
     }
 
-    public Account(UUID id, String bankName, String externalAccountId) {
+    public Account(UUID id, UUID userId, String bankName, String externalAccountId) {
         this.id = id;
+        this.userId = userId;
         this.bankName = bankName;
         this.externalAccountId = externalAccountId;
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
     public String getBankName() {

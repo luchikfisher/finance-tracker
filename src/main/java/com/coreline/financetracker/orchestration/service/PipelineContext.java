@@ -10,12 +10,21 @@ import java.util.List;
 
 public class PipelineContext {
 
+    private java.util.UUID userId;
     private String bankName;
     private String originalFilename;
     private ImportedFile importedFile;
     private List<ParsedTransaction> parsedTransactions = new ArrayList<>();
     private List<Transaction> transactions = new ArrayList<>();
     private List<EnrichmentResult> enrichmentResults = new ArrayList<>();
+
+    public java.util.UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(java.util.UUID userId) {
+        this.userId = userId;
+    }
 
     public String getBankName() {
         return bankName;

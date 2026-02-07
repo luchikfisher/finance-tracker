@@ -36,9 +36,9 @@ public class GoogleSheetsExporter implements Exporter {
     }
 
     @Override
-    public void export() {
+    public void export(java.util.UUID userId) {
         List<Transaction> transactions =
-                transactionQueryService.findAll();
+                transactionQueryService.findAll(userId);
 
         exportTransactions(transactions);
         exportMonthlySummary(transactions);

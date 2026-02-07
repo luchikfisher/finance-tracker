@@ -40,7 +40,7 @@ public class EnrichmentService {
                         clockProvider.now()
 
                 );
-                store.save(result);
+                store.save(result, transaction.getUserId());
                 return Optional.of(result);
             }
         }

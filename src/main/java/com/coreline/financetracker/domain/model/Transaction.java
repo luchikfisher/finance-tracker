@@ -21,6 +21,9 @@ public class Transaction {
     @Column(nullable = false)
     private UUID accountId;
 
+    @Column
+    private UUID userId;
+
     @Column(nullable = false)
     private LocalDate transactionDate;
 
@@ -47,6 +50,7 @@ public class Transaction {
     public Transaction(
             UUID id,
             UUID accountId,
+            UUID userId,
             LocalDate transactionDate,
             LocalDate valueDate,
             Money money,
@@ -56,6 +60,7 @@ public class Transaction {
     ) {
         this.id = id;
         this.accountId = accountId;
+        this.userId = userId;
         this.transactionDate = transactionDate;
         this.valueDate = valueDate;
         this.money = money;
@@ -70,6 +75,10 @@ public class Transaction {
 
     public UUID getAccountId() {
         return accountId;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
     public LocalDate getTransactionDate() {

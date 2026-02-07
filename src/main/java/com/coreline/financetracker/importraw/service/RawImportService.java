@@ -1,6 +1,7 @@
 package com.coreline.financetracker.importraw.service;
 
 import com.coreline.financetracker.common.exception.ValidationException;
+import com.coreline.financetracker.common.util.Preconditions;
 import com.coreline.financetracker.common.time.ClockProvider;
 import com.coreline.financetracker.importraw.model.*;
 import com.coreline.financetracker.importraw.repository.*;
@@ -37,13 +38,15 @@ public class RawImportService {
 
     @Transactional
     public ImportedFile importFile(
+            UUID userId,
             String bankName,
             String originalFilename,
             InputStream inputStream
     ) {
+        Preconditions.notNull(userId, "userId must not be null");
         try {
             byte[] data = inputStream.readAllBytes();
-            return importFile(bankName, originalFilename, data);
+            return importFile(userId, bankName, originalFilename, data);
         } catch (Exception e) {
             throw new ValidationException("Failed to read import file", e);
         }
@@ -51,13 +54,16 @@ public class RawImportService {
 
     @Transactional
     public ImportedFile importFile(
+            UUID userId,
             String bankName,
             String originalFilename,
             byte[] data
     ) {
+        Preconditions.notNull(userId, "userId must not be null");
         UUID sessionId = UUID.randomUUID();
         ImportSession session = new ImportSession(
                 sessionId,
+                userId,
                 clockProvider.now(),
                 ImportStatus.CREATED
         );
@@ -67,7 +73,7 @@ public class RawImportService {
                 new ByteArrayInputStream(data)
         );
 
-        importedFileRepository.findByChecksum(checksum)
+        importedFileRepository.findByUserIdAndChecksum(userId, checksum)
                 .ifPresent(existing -> {
                     throw new ValidationException(
                             "File with same checksum already imported: " + existing.getId()
@@ -80,6 +86,7 @@ public class RawImportService {
         ImportedFile importedFile = new ImportedFile(
                 fileId,
                 sessionId,
+                userId,
                 originalFilename,
                 bankName,
                 checksum,

@@ -6,9 +6,11 @@ import com.coreline.financetracker.api.service.ImportPipelineService;
 import com.coreline.financetracker.common.constants.AppConstants;
 import com.coreline.financetracker.common.exception.ValidationException;
 import com.coreline.financetracker.importraw.repository.ImportedFileRepository;
+import com.coreline.financetracker.user.service.CurrentUserService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,13 +22,16 @@ public class ImportController {
 
     private final ImportPipelineService importPipelineService;
     private final ImportedFileRepository importedFileRepository;
+    private final CurrentUserService currentUserService;
 
     public ImportController(
             ImportPipelineService importPipelineService,
-            ImportedFileRepository importedFileRepository
+            ImportedFileRepository importedFileRepository,
+            CurrentUserService currentUserService
     ) {
         this.importPipelineService = importPipelineService;
         this.importedFileRepository = importedFileRepository;
+        this.currentUserService = currentUserService;
     }
 
     @PostMapping(
@@ -34,6 +39,7 @@ public class ImportController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("@access.canWrite(authentication)")
     public ImportSummaryDto importFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "bankName", defaultValue = AppConstants.DEFAULT_BANK)
@@ -47,19 +53,19 @@ public class ImportController {
 
         try {
             return importPipelineService.importAndProcess(
+                    currentUserService.requireUserId(),
                     bankName,
                     file.getOriginalFilename() == null ? "import.csv" : file.getOriginalFilename(),
                     file.getBytes(),
                     export
             );
-        } catch (ValidationException e) {
-            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Import pipeline failed", e);
+            throw new ValidationException("Failed to import file", e);
         }
     }
 
     @GetMapping("/imported-files")
+    @PreAuthorize("@access.canRead(authentication)")
     public List<ImportedFileDto> listImportedFiles(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "50") int size
@@ -69,7 +75,7 @@ public class ImportController {
                 Math.min(Math.max(size, 1), 200),
                 Sort.by(Sort.Direction.DESC, "uploadedAt")
         );
-        return importedFileRepository.findAll(request).stream()
+        return importedFileRepository.findByUserId(currentUserService.requireUserId(), request).stream()
                 .map(ImportedFileDto::from)
                 .toList();
     }

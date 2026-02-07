@@ -39,7 +39,8 @@ public class TransactionIngestionService {
     }
 
     @Transactional
-    public List<Transaction> ingest(List<ParsedTransaction> parsedTransactions) {
+    public List<Transaction> ingest(UUID userId, List<ParsedTransaction> parsedTransactions) {
+        Preconditions.notNull(userId, "userId must not be null");
         Preconditions.notNull(parsedTransactions, "parsedTransactions must not be null");
 
         List<Transaction> saved = new ArrayList<>();
@@ -57,13 +58,13 @@ public class TransactionIngestionService {
             Preconditions.notBlank(externalId, "accountExternalId is required");
 
             Account account = accountRepository
-                    .findByBankNameAndExternalAccountId(bankName, externalId)
+                    .findByUserIdAndBankNameAndExternalAccountId(userId, bankName, externalId)
                     .orElseGet(() -> accountRepository.save(
-                            new Account(UUID.randomUUID(), bankName, externalId)
+                            new Account(UUID.randomUUID(), userId, bankName, externalId)
                     ));
 
             DeduplicationResult result =
-                    deduplicationService.checkDuplicate(parsed, account.getId());
+                    deduplicationService.checkDuplicate(parsed, account.getId(), userId);
 
             if (result.duplicate()) {
                 continue;
@@ -78,6 +79,7 @@ public class TransactionIngestionService {
 
             Transaction transaction = transactionFactory.create(
                     account.getId(),
+                    userId,
                     parsed.transactionDate(),
                     parsed.valueDate(),
                     parsed.amount(),
