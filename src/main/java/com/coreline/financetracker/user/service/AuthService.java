@@ -1,6 +1,7 @@
 package com.coreline.financetracker.user.service;
 
 import com.coreline.financetracker.common.exception.ValidationException;
+import com.coreline.financetracker.notification.EmailService;
 import com.coreline.financetracker.security.JwtService;
 import com.coreline.financetracker.security.TokenGenerator;
 import com.coreline.financetracker.security.TokenHasher;
@@ -15,10 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class AuthService {
@@ -29,8 +32,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenGenerator tokenGenerator;
+    private final EmailService emailService;
     private final long refreshTtlDays;
     private final long resetTtlMinutes;
+    private final String resetUrlTemplate;
 
     public AuthService(
             UserRepository userRepository,
@@ -39,8 +44,11 @@ public class AuthService {
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
             TokenGenerator tokenGenerator,
+            EmailService emailService,
             @Value("${security.jwt.refresh-ttl-days:30}") long refreshTtlDays,
-            @Value("${security.reset.ttl-minutes:30}") long resetTtlMinutes
+            @Value("${security.reset.ttl-minutes:30}") long resetTtlMinutes,
+            @Value("${email.reset.url-template:http://localhost:8080/reset-password?token={token}&username={username}}")
+            String resetUrlTemplate
     ) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
@@ -48,8 +56,10 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.tokenGenerator = tokenGenerator;
+        this.emailService = emailService;
         this.refreshTtlDays = refreshTtlDays;
         this.resetTtlMinutes = resetTtlMinutes;
+        this.resetUrlTemplate = resetUrlTemplate;
     }
 
     @Transactional
@@ -93,8 +103,8 @@ public class AuthService {
     }
 
     @Transactional
-    public Optional<String> requestPasswordReset(String username) {
-        Optional<AppUser> userOpt = userRepository.findByUsername(username);
+    public Optional<String> requestPasswordReset(String email) {
+        Optional<AppUser> userOpt = userRepository.findByEmail(normalizeEmail(email));
         if (userOpt.isEmpty()) {
             return Optional.empty();
         }
@@ -114,12 +124,15 @@ public class AuthService {
                 null
         );
         passwordResetTokenRepository.save(token);
+
+        String link = buildResetLink(user.getEmail(), raw);
+        emailService.sendPasswordReset(user.getEmail(), link);
         return Optional.of(raw);
     }
 
     @Transactional
-    public void confirmPasswordReset(String username, String token, String newPassword) {
-        AppUser user = userRepository.findByUsername(username)
+    public void confirmPasswordReset(String email, String token, String newPassword) {
+        AppUser user = userRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new ValidationException("Invalid reset token"));
 
         String hash = TokenHasher.sha256(token);
@@ -157,6 +170,19 @@ public class AuthService {
         refreshTokenRepository.save(refresh);
 
         return new TokenPair(accessToken, refreshRaw, exp);
+    }
+
+    private String buildResetLink(String email, String token) {
+        String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
+        String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
+        return resetUrlTemplate
+                .replace("{username}", encodedEmail)
+                .replace("{email}", encodedEmail)
+                .replace("{token}", encodedToken);
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase();
     }
 
     public record TokenPair(String accessToken, String refreshToken, Instant refreshExpiresAt) {

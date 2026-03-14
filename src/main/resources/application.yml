@@ -10,6 +10,17 @@ spring:
         format_sql: false
   flyway:
     enabled: true
+  mail:
+    host: ${SMTP_HOST:}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SMTP_AUTH:true}
+          starttls:
+            enable: ${SMTP_STARTTLS:true}
 
 storage:
   raw-files:
@@ -35,6 +46,13 @@ security:
   reset:
     ttl-minutes: 30
     return-token: true
+
+email:
+  enabled: ${EMAIL_ENABLED:false}
+  from: ${EMAIL_FROM:no-reply@finance-tracker.local}
+  reset:
+    subject: ${EMAIL_RESET_SUBJECT:Reset your Finance Tracker password}
+    url-template: ${EMAIL_RESET_URL_TEMPLATE:http://localhost:8080/reset-password?token={token}&email={email}}
 
 google:
   application-name: finance-tracker

@@ -28,9 +28,12 @@ public class UserService {
         this.clockProvider = clockProvider;
     }
 
-    public AppUser register(String username, String rawPassword) {
+    public AppUser register(String username, String email, String rawPassword) {
         if (username == null || username.isBlank()) {
             throw new ValidationException("username is required");
+        }
+        if (email == null || email.isBlank()) {
+            throw new ValidationException("email is required");
         }
         if (rawPassword == null || rawPassword.isBlank()) {
             throw new ValidationException("password is required");
@@ -40,11 +43,16 @@ public class UserService {
                 .ifPresent(existing -> {
                     throw new ValidationException("username already exists");
                 });
+        userRepository.findByEmail(email)
+                .ifPresent(existing -> {
+                    throw new ValidationException("email already exists");
+                });
 
         String hash = passwordEncoder.encode(rawPassword);
         AppUser user = new AppUser(
                 UUID.randomUUID(),
                 username.trim(),
+                email.trim().toLowerCase(),
                 hash,
                 UserRole.ACTIVE_USER,
                 clockProvider.now(),
@@ -53,9 +61,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public AppUser createAdmin(String username, String rawPassword) {
+    public AppUser createAdmin(String username, String email, String rawPassword) {
         if (username == null || username.isBlank()) {
             throw new ValidationException("username is required");
+        }
+        if (email == null || email.isBlank()) {
+            throw new ValidationException("email is required");
         }
         if (rawPassword == null || rawPassword.isBlank()) {
             throw new ValidationException("password is required");
@@ -65,11 +76,16 @@ public class UserService {
                 .ifPresent(existing -> {
                     throw new ValidationException("username already exists");
                 });
+        userRepository.findByEmail(email)
+                .ifPresent(existing -> {
+                    throw new ValidationException("email already exists");
+                });
 
         String hash = passwordEncoder.encode(rawPassword);
         AppUser user = new AppUser(
                 UUID.randomUUID(),
                 username.trim(),
+                email.trim().toLowerCase(),
                 hash,
                 UserRole.SYSTEM_ADMIN,
                 clockProvider.now(),

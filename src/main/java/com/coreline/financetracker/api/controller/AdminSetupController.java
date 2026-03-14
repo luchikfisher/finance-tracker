@@ -34,7 +34,11 @@ public class AdminSetupController {
         if (userRepository.count() > 0) {
             throw new ValidationException("Admin setup already completed");
         }
-        AppUser admin = userService.createAdmin(request.username(), request.password());
+        AppUser admin = userService.createAdmin(
+                request.username(),
+                request.email(),
+                request.password()
+        );
         return UserDto.from(admin);
     }
 }

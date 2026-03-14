@@ -36,7 +36,11 @@ public class AuthController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public UserDto register(@Valid @RequestBody RegisterRequest request) {
-        AppUser user = userService.register(request.username(), request.password());
+        AppUser user = userService.register(
+                request.username(),
+                request.email(),
+                request.password()
+        );
         return UserDto.from(user);
     }
 
@@ -88,7 +92,7 @@ public class AuthController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public PasswordResetResponse requestReset(@Valid @RequestBody PasswordResetRequest request) {
-        String token = authService.requestPasswordReset(request.username()).orElse(null);
+        String token = authService.requestPasswordReset(request.email()).orElse(null);
         if (!returnResetToken) {
             token = null;
         }
@@ -102,7 +106,7 @@ public class AuthController {
     )
     public SimpleMessage confirmReset(@Valid @RequestBody PasswordResetConfirmRequest request) {
         authService.confirmPasswordReset(
-                request.username(),
+                request.email(),
                 request.resetToken(),
                 request.newPassword()
         );

@@ -15,6 +15,9 @@ public class AppUser {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column
+    private String email;
+
     @Column(nullable = false)
     private String passwordHash;
 
@@ -35,6 +38,7 @@ public class AppUser {
     public AppUser(
             UUID id,
             String username,
+            String email,
             String passwordHash,
             UserRole role,
             Instant createdAt,
@@ -42,6 +46,7 @@ public class AppUser {
     ) {
         this.id = id;
         this.username = username;
+        this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
         this.createdAt = createdAt;
@@ -54,6 +59,10 @@ public class AppUser {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public String getPasswordHash() {
